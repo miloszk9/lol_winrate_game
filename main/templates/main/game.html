@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LoL winrate game</title>
+</head>
+
+<body>
+    SRC:<span id="source">{{source}}</span><br>
+    Score:<span id="score">{{score}}</span><br>
+    Finish:<span id="finish"></span><br>
+    <div id="game">
+        <div id="champ1">
+            <span id="champ1_name">{{champion.0.name}}</span>
+            <span id="champ1_role">{{champion.0.role}}</span>
+            <span id="champ1_win">{{champion.0.win_rate}}</span>
+        </div>
+
+        <div id="champ2">
+            <span id="champ2_name">{{champion.1.name}}</span>
+            <span id="champ2_role">{{champion.1.role}}</span>
+        </div>
+
+        <button class="game_btn" type="button" value="higher">Higher</button>
+        <button class="game_btn" type="button" value="lower">Lower</button>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src={% static 'js/ajax.js' %}></script>
+</body>
+</html>

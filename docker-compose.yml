@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+    postgres_db:
+        image: postgres
+        volumes: 
+            - postgres_vol:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=admin
+            - POSTGRES_DB=lol_winrate
+        networks:
+            - inner_net
+    
+    pgadmin:
+        image: dpage/pgadmin4
+        networks:
+            - inner_net
+            - gateway
+        ports:
+            - 8081:80 
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=user@domain.com
+            - PGADMIN_DEFAULT_PASSWORD=admin
+
+    lol_winrate_django:
+        build: ./
+        image: lol_winrate_django
+        depends_on:
+            - postgres_db
+        networks:
+            - inner_net
+            - gateway
+
+    nginx:
+        image: nginx
+        networks:
+            - gateway
+        ports:
+            - 8080:8080
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./main/static/:/app/static/:ro
+        depends_on:
+            - postgres_db
+            - lol_winrate_django
+            - pgadmin
+
+networks:
+    inner_net:
+    gateway:
+
+volumes:
+    postgres_vol:
