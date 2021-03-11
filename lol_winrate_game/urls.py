@@ -21,6 +21,5 @@ from main import views as main
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main.home, name = 'home'),
-    path('update/', main.update, name = 'update'),
     path('game/', main.game, name = 'game')
 ]

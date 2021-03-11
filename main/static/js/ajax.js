@@ -20,6 +20,9 @@ $(document).ready(function(){
                 
                 $("#champ2_name").text(response.new_champ[0]),
                 $("#champ2_role").text(response.new_champ[1])
+            },
+            error: function(){
+                $("#finish").text("An error has occured!")
             }
         });
     });

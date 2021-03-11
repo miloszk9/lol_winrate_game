@@ -3,12 +3,10 @@ from django.http import JsonResponse
 from requests.api import get
 from .models import Champ_winrate, Game_log
 from random import choice
+import datetime
 
+from .update_db import update_db
 from .get_client_ip import get_client_ip
-
-# Imports for update() function
-import requests
-from bs4 import BeautifulSoup as soup
 
 def home(request):
     data = {}
@@ -102,8 +100,20 @@ def game(request):
         Start of the game (the first turn)
         '''
         
-        # Getting 2 random champions
+        # Make as finished unfinished games older than 1 day (prevent bugs which can exist with new data from database)
+        now_date = datetime.datetime.now()
+        games = Game_log.objects.filter(is_finished = False).all()
+        for game in games:
+            if (now_date - game.date.replace(tzinfo=None)).days > 0:
+                game.is_finished = True
+                game.save()
+
+        # Update database if data older than 1 day
         all_champion = Champ_winrate.objects.filter(source=str(src)).all()
+        if (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
+            update_db(src)
+
+        # Getting 2 random champions
         champs = [choice(all_champion), choice(all_champion)]
 
         game = Game_log(ip = get_client_ip(request), score = 0, source = src, \
@@ -119,57 +129,3 @@ def game(request):
     }
 
     return render(request, 'main/game.html', data)
-
-
-def update(reqeust):
-    '''
-    Update winrates of the champions in database
-
-    data_source = 1 - metasrc.com
-    data_source = 2 - champion.gg
-
-    '''
-    data_source = 1
-    if data_source == 1:
-        # Delete data from db
-        Champ_winrate.objects.filter(source=data_source).all().delete()
-
-        url = 'https://www.metasrc.com/5v5/stats'
-        webpage = requests.get(url)
-        webpage_preety = soup(webpage.content, 'html.parser')
-        champ_list = webpage_preety.find_all("tr", {"class": "_sbzxul"})
-
-        for champ in champ_list:
-            try:
-                data = champ.find_all("td")
-                champ_name = data[0].find_next("span").get_text()
-                champ_lane = data[1].find_next("div").get_text().lower()
-                champ_win = data[5].get_text()[:-1]
-                champ = Champ_winrate(name= champ_name, role = champ_lane, win_rate = champ_win, source = 1)
-                champ.save()
-            except:
-                pass
-
-    data_source = 2
-    if data_source == 2:
-        # Delete data from db
-        Champ_winrate.objects.filter(source=data_source).all().delete()
-
-        url = 'https://champion.gg/statistics/overview?queue=ranked-solo-duo&rank=platinum_plus&region=world'
-        webpage = requests.get(url)
-        webpage_preety = soup(webpage.content, 'html.parser')
-        champ_list = webpage_preety.find_all("div", {"class": "champion-row"})
-
-        for champ in champ_list:
-            try:
-                data = champ.find_all("div")
-                champ_name = data[2].find_next("span").get_text()
-                champ_lane = data[1].find_next("svg").find_next("title").get_text()[5:]
-                champ_win = data[5].get_text()[:-1]
-                
-                champ = Champ_winrate(name= champ_name, role = champ_lane, win_rate = champ_win, source = 2)
-                champ.save()
-            except:
-                pass
-
-    return redirect('home')
