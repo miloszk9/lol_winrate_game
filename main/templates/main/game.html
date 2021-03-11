@@ -1,33 +1,59 @@
+{% extends "main/index.html" %}
 {% load static %}
-<!doctype html>
+{% block content %}
+<nav class="navbar navbar-dark bg-dark text-light">
+    <div class="container container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <span class="navbar-brand">LoL Winrate Game</span>
+        </a>
+        <div class="ml-auto">
+            <span>Source: </span>
+            {% if source == 0 %}
+                <a class="a" href="http://metasrc.com" target="_blank">
+                    <span>metasrc.com</span>
+                </a>
 
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>LoL winrate game</title>
-</head>
-
-<body>
-    SRC:<span id="source">{{source}}</span><br>
-    Score:<span id="score">{{score}}</span><br>
-    Finish:<span id="finish"></span><br>
-    <div id="game">
-        <div id="champ1">
-            <span id="champ1_name">{{champion.0.name}}</span>
-            <span id="champ1_role">{{champion.0.role}}</span>
-            <span id="champ1_win">{{champion.0.win_rate}}</span>
+            {% else %}
+                <a class="a" href="http://champion.gg" target="_blank">
+                    <span>champion.gg</span>
+                </a>
+            {% endif %}
         </div>
-
-        <div id="champ2">
-            <span id="champ2_name">{{champion.1.name}}</span>
-            <span id="champ2_role">{{champion.1.role}}</span>
-        </div>
-
-        <button class="game_btn" type="button" value="higher">Higher</button>
-        <button class="game_btn" type="button" value="lower">Lower</button>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src={% static 'js/ajax.js' %}></script>
-</body>
-</html>
+</nav>
+
+<main class="container">
+    <div id="div_score">
+        <span>
+            <h3>Score: </h3><h3 id="score">{{score}}</h3>
+            <h3>Highest score: </h3><h3 id="best_score">{{best_score}}</h3>
+        </span>
+    </div>
+    <div class="row" id="game">
+        <div class="card col-6" id="champ1">
+            <img id="champ1_img" src="{% static 'img/'%}{{champion.0.name}}.jpg" class="champ_img img-fluid">
+            <h3 id="champ1_name">{{champion.0.name}}</h3>
+            <h3 id="champ1_role">{{champion.0.role}}</h3>
+            <h3 id="champ1_win">{{champion.0.win_rate}}</h3>%
+        </div>
+
+        <div class="card col-6" id="champ2">
+            <img id="champ2_img" src="{% static 'img/'%}{{champion.1.name}}.jpg" class="champ_img img-fluid">
+            <h3 id="champ2_name">{{champion.1.name}}</h3>
+            <h3 id="champ2_role">{{champion.1.role}}</h3>
+            <button class="btn btn-success game_btn" type="button" value="higher">Higher</button>
+            <button class="btn btn-danger game_btn" type="button" value="lower">Lower</button>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    // Fixes image src when champion has space in name
+    for (let img of document.getElementsByClassName('champ_img')){
+        img.src = img.src.replaceAll("%20", "_")
+    }
+</script>
+
+<script src="{% static 'js/ajax.js' %}"></script>
+{% endblock content %}

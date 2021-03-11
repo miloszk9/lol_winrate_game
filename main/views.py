@@ -84,7 +84,7 @@ def game(request):
             return JsonResponse({'score': int(game.score), 'finish': True}, status = 200)
 
     '''
-    Chacks if the player has any unfinished games
+    Checks if the player has any unfinished games
     '''
     game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False, source = str(src)).first()
     if game is not None:
@@ -108,9 +108,9 @@ def game(request):
                 game.is_finished = True
                 game.save()
 
-        # Update database if data older than 1 day
+        # Update database if data older than 1 day or there is no data (all_champion is None)
         all_champion = Champ_winrate.objects.filter(source=str(src)).all()
-        if (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
+        if all_champion.first() is None or (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
             update_db(src)
 
         # Getting 2 random champions
@@ -122,10 +122,18 @@ def game(request):
 
         score = 0
 
+    # User's best score
+    game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = True).order_by('-score').first()
+    if game is not None:
+        best_score = game.score
+    else:
+        best_score = 0
+
     data = {
         'source': src,
         'champion': champs,
         'score': score,
+        'best_score' : best_score
     }
 
     return render(request, 'main/game.html', data)
