@@ -81,7 +81,7 @@ def game(request):
         else:
             game.is_finished = True
             game.save()
-            return JsonResponse({'score': int(game.score), 'finish': True}, status = 200)
+            return JsonResponse({'score': int(game.score), 'champ2_win': champ2_db.win_rate, 'finish': True}, status = 200)
 
     '''
     Checks if the player has any unfinished games

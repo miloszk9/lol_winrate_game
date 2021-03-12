@@ -25,12 +25,16 @@ $(document).ready(function(){
                     $("#champ2_img")[0].src = $("#champ2_img")[0].src.split('img/')[0] + "img/" + response.new_champ[0].replaceAll(" ", "_") + ".jpg"
                 }else{
                     // Game is finished
-                    $("#game").remove(),
+                    $(".game_btn").remove(),
+                    $("#champ2_role").parent().append('<h1>'+ response.champ2_win +' %</h1>')
                     $("#div_score").append('<a href="/"><button class="btn btn-success">Play again!</button></a>')
                 }
             },
             error: function(){
-                $("#finish").text("An error has occured!")
+                // Game is finished
+                $("#game").remove(),
+                $("#score").text("An error has occured!"),
+                $("#div_score").append('<a href="/"><button class="btn btn-success">Play again!</button></a>')
             }
         });
     });

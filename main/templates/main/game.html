@@ -8,7 +8,7 @@
         </a>
         <div class="ml-auto">
             <span>Source: </span>
-            {% if source == 0 %}
+            {% if source == 1 %}
                 <a class="a" href="http://metasrc.com" target="_blank">
                     <span>metasrc.com</span>
                 </a>
@@ -24,27 +24,39 @@
 
 <main class="container">
     <div id="div_score">
-        <span>
-            <h3>Score: </h3><h3 id="score">{{score}}</h3>
-            <h3>Highest score: </h3><h3 id="best_score">{{best_score}}</h3>
-        </span>
+        <div class="d-flex justify-content-center my-2">
+            <h2 class="d-inline ms-2">
+                <p class="d-inline">Score: </p>
+                <p id="score" class="d-inline">{{score}}</p>
+            </h2>
+            <h2 class="d-inline ms-auto me-2">
+                <p class="d-inline">Highest score: </p>
+                <p id="best_score" class="d-inline">{{best_score}}</p>
+            </h2>
+        </div>
     </div>
     <div class="row" id="game">
         <div class="card col-6" id="champ1">
-            <img id="champ1_img" src="{% static 'img/'%}{{champion.0.name}}.jpg" class="champ_img img-fluid">
-            <h3 id="champ1_name">{{champion.0.name}}</h3>
-            <h3 id="champ1_role">{{champion.0.role}}</h3>
-            <h3 id="champ1_win">{{champion.0.win_rate}}</h3>%
+            <div class="row justify-content-center text-center my-4">
+                <img id="champ1_img" src="{% static 'img/'%}{{champion.0.name}}.jpg" class="champ_img img-fluid w-50 mb-4">
+                <h3 id="champ1_name" class="col-12">{{champion.0.name}}</h3>
+                <h3 id="champ1_role" class="col-12">{{champion.0.role}}</h3>
+                <h1>
+                    <p id="champ1_win" class="d-inline">{{champion.0.win_rate}}</p>
+                    <p class="d-inline">%</p>
+                </h1>
+            </div>
         </div>
 
         <div class="card col-6" id="champ2">
-            <img id="champ2_img" src="{% static 'img/'%}{{champion.1.name}}.jpg" class="champ_img img-fluid">
-            <h3 id="champ2_name">{{champion.1.name}}</h3>
-            <h3 id="champ2_role">{{champion.1.role}}</h3>
-            <button class="btn btn-success game_btn" type="button" value="higher">Higher</button>
-            <button class="btn btn-danger game_btn" type="button" value="lower">Lower</button>
+            <div class="row justify-content-center text-center my-4">
+                <img id="champ2_img" src="{% static 'img/'%}{{champion.1.name}}.jpg" class="champ_img img-fluid w-50 mb-4">
+                <h3 id="champ2_name" class="col-12">{{champion.1.name}}</h3>
+                <h3 id="champ2_role" class="col-12">{{champion.1.role}}</h3>
+                <button class="btn btn-success game_btn col-8" type="button" value="higher">Higher</button>
+                <button class="btn btn-danger game_btn col-8" type="button" value="lower">Lower</button>
+            </div>
         </div>
-
     </div>
 </main>
 
@@ -53,6 +65,13 @@
     for (let img of document.getElementsByClassName('champ_img')){
         img.src = img.src.replaceAll("%20", "_")
     }
+    
+    // Add '%' to winrate section
+    /*
+    if ($('#champ1_win').text()[$('#champ1_win').text().length-1] != '%'){
+        $('#champ1_win').text($('#champ1_win').text() + "%")
+    }
+    */
 </script>
 
 <script src="{% static 'js/ajax.js' %}"></script>
