@@ -20,8 +20,8 @@ $ docker-compose up -d --build
 
 ### Game screenshots
 ![screen1](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_1.png?raw=true)
-![screen2](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_1.png?raw=true)
-![screen3](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_1.png?raw=true)
+![screen2](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_2.png?raw=true)
+![screen3](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_3.png?raw=true)
 
 ### Sources
 * background image: leagueoflegends.fandom.com
