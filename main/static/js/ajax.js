@@ -31,7 +31,7 @@ $(document).ready(function(){
                 }
             },
             error: function(){
-                // Game is finished
+                // Game error
                 $("#game").remove(),
                 $("#score").text("An error has occured!"),
                 $("#div_score").append('<a href="/"><button class="btn btn-success">Play again!</button></a>')

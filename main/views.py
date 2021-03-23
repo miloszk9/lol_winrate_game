@@ -86,7 +86,7 @@ def game(request):
     '''
     Checks if the player has any unfinished games
     '''
-    game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False, source = str(src)).first()
+    game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False, source = str(src)).last()
     if game is not None:
         '''
         Resuming unfinished game

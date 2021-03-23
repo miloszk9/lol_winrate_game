@@ -11,28 +11,26 @@
 </nav>
 
 <main class="container">
-    <div class="card">
-        <h2 class="mt-4 d-flex justify-content-center">Pick data source:</h2>
-        <div class="card-body mt-1 d-flex justify-content-center">
-            <form action="/game">
-                {% csrf_token %}
-                <div class="form-check px-3">
-                    <input class="form-check-input" type="radio" name="src" id="input1" value="1" checked>
-                    <label class="form-check-label" for="input1">
-                        metasrc.com
-                    </label>
-                </div>
-                <div class="form-check px-3">
-                    <input class="form-check-input" type="radio" name="src" id="input2" value="2">
-                    <label class="form-check-label" for="input2">
-                        champion.gg
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-lg btn-success mt-4 px-4">
-                    Play!
-                </button>
-            </form>
-        </div>
+    <h2 class="mt-4 d-flex justify-content-center">Pick data source:</h2>
+    <div class="mt-1 d-flex justify-content-center">
+        <form action="/game">
+            {% csrf_token %}
+            <div class="form-check px-3">
+                <input class="form-check-input" type="radio" name="src" id="input1" value="1" checked>
+                <label class="form-check-label" for="input1">
+                    metasrc.com
+                </label>
+            </div>
+            <div class="form-check px-3">
+                <input class="form-check-input" type="radio" name="src" id="input2" value="2">
+                <label class="form-check-label" for="input2">
+                    champion.gg
+                </label>
+            </div>
+            <button type="submit" class="btn btn-lg btn-success mt-4 px-4">
+                Play!
+            </button>
+        </form>
     </div>
 </main>
 
