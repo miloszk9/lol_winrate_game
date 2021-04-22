@@ -11,7 +11,7 @@ class Champ_winrate(models.Model):
         return self.name
 
 class Game_log(models.Model):
-    ip = models.CharField(max_length=15)
+    session_key_db = models.CharField(max_length=32, default='0')
     score = models.IntegerField()
     source = models.IntegerField()
     champ1 = models.IntegerField()

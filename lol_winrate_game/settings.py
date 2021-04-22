@@ -84,7 +84,14 @@ DATABASES = {
         'PORT': '5432'
     }
 }
-
+"""
+# DB for development
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3',
+    }
+}"""
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

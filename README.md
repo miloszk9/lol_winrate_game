@@ -9,6 +9,7 @@ A similar game to “Higher lower game” but you have to decide which of two ra
 ## Installation
 ```sh
 $ docker-compose up -d --build
+$ docker exec lol_winrate_game_lol_winrate_django_1 python manage.py migrate
 ```
 
 ### Used frameworks / tools
@@ -24,9 +25,9 @@ $ docker-compose up -d --build
 ![screen3](https://github.com/miloszk9/lol_winrate_game/blob/main/example_images/lol_3.png?raw=true)
 
 ### Sources
-* background image: leagueoflegends.fandom.com
-* champion's images: lol.gamepedia.com
+* background image: www.leagueoflegends.fandom.com
+* champion's images: www.lol.gamepedia.com
 * winrate source 1: www.metasrc.com
-* winrate source 2: champion.gg
+* winrate source 2: www.champion.gg
 
 Made by: Miłosz Kaszuba

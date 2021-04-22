@@ -6,7 +6,7 @@ from random import choice
 import datetime
 
 from .update_db import update_db
-from .get_client_ip import get_client_ip
+from .download_img import download_img
 
 def home(request):
     data = {}
@@ -14,6 +14,11 @@ def home(request):
 
 def game(request):
     src = int(request.GET.get('src', 1)) # Default option set to '1'
+
+    # Save session key 
+    if not request.session.session_key:
+        request.session.create()
+    session_key = request.session.session_key
 
     '''
     Ajax when its second or later turns (not the first one)
@@ -35,18 +40,18 @@ def game(request):
         if champ1_db is None or champ2_db is None:
             # When data in db is not the same with data passed by user. 
             # Data could be inspected and modified by user.
-            game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False).all().delete()
+            game = Game_log.objects.filter(session_key_db = session_key, is_finished = False).all().delete()
 
             return JsonResponse({'finish': "Error"}, status = 400)
 
         # Validate user's data - could be changed through page inspect
-        game = Game_log.objects.filter(ip = get_client_ip(request), source = src, champ1 = champ1_db.id,\
+        game = Game_log.objects.filter(session_key_db = session_key, source = src, champ1 = champ1_db.id,\
                                        champ2 = champ2_db.id, is_finished = False).first()
 
         if game is None:
             # When data in db is not the same with data passed by user. 
             # Data could be inspected and modified by user.
-            game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False).all().delete()
+            game = Game_log.objects.filter(session_key_db = session_key, is_finished = False).all().delete()
 
             return JsonResponse({'finish': "Error"}, status = 400)
 
@@ -86,7 +91,7 @@ def game(request):
     '''
     Checks if the player has any unfinished games
     '''
-    game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = False, source = str(src)).last()
+    game = Game_log.objects.filter(session_key_db = session_key, is_finished = False, source = str(src)).last()
     if game is not None:
         '''
         Resuming unfinished game
@@ -112,18 +117,19 @@ def game(request):
         all_champion = Champ_winrate.objects.filter(source=str(src)).all()
         if all_champion.first() is None or (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
             update_db(src)
+            download_img()
 
         # Getting 2 random champions
         champs = [choice(all_champion), choice(all_champion)]
 
-        game = Game_log(ip = get_client_ip(request), score = 0, source = src, \
+        game = Game_log(session_key_db = session_key, score = 0, source = src, \
                         champ1 = champs[0].id, champ2 = champs[1].id, is_finished = False)
         game.save()
 
         score = 0
 
     # User's best score
-    game = Game_log.objects.filter(ip = get_client_ip(request), is_finished = True).order_by('-score').first()
+    game = Game_log.objects.filter(session_key_db = session_key, is_finished = True).order_by('-score').first()
     if game is not None:
         best_score = game.score
     else:

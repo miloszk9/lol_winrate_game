@@ -1,4 +1,5 @@
 import requests
+import os.path
 from bs4 import BeautifulSoup as soup
 from .models import Champ_winrate
 
@@ -9,7 +10,6 @@ def update_db(data_source):
 
     data_source = 1 - metasrc.com
     data_source = 2 - champion.gg
-
     '''
     if data_source == 1:
         # Delete data from db
@@ -51,3 +51,15 @@ def update_db(data_source):
                 champ.save()
             except:
                 pass
+
+    '''
+    Select champion names from database and save to file
+    '''
+    champs_db = Champ_winrate.objects.all()
+    champs = [champ.name.replace(" ", "_") for champ in champs_db]
+    champs = set(champs) # make 'champs' contain only unique values
+
+    dirname = os.path.dirname(__file__)
+    with open(os.path.join(dirname, 'champ_list.txt'), 'w') as file:
+        for champ in champs:
+            file.write(champ+'\n')
