@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 from requests.api import get
 from .models import Champ_winrate, Game_log
 from random import choice
 import datetime
+import logging
 
 from .update_db import update_db
 from .download_img import download_img
 
+@cache_page(60 * 15)
 def home(request):
     data = {}
     return render(request, 'main/home.html', data)
@@ -20,6 +24,16 @@ def game(request):
         request.session.create()
     session_key = request.session.session_key
 
+    # Getting all champions from the database - if not cached
+    logger = logging.getLogger(__name__)
+    if cache.get(str(src)) is not None:
+        logger.info("Got cache")
+        all_champion = cache.get(str(src))
+    else:
+        logger.info("No cache")
+        all_champion = Champ_winrate.objects.filter(source=str(src)).all()
+        cache.set(str(src), all_champion, 60 * 15)
+
     '''
     Ajax when its second or later turns (not the first one)
     '''
@@ -31,11 +45,12 @@ def game(request):
         src = request.GET.get('src', 1)
         champ1 = [request.GET.get('champ1_name', 0), request.GET.get('champ1_role', 0)]
         champ2 = [request.GET.get('champ2_name', 0), request.GET.get('champ2_role', 0)]
+        
         # Getting champs from database 
-        champ1_db = Champ_winrate.objects.filter(source=int(src), name=str(champ1[0]), \
-                                                 role=str(champ1[1])).first()
-        champ2_db = Champ_winrate.objects.filter(source=int(src), name=str(champ2[0]), \
-                                                 role=str(champ2[1])).first()
+        champ1_db = all_champion.filter(name=str(champ1[0]), \
+                                        role=str(champ1[1])).first()
+        champ2_db = all_champion.filter(name=str(champ2[0]), \
+                                        role=str(champ2[1])).first()
         
         if champ1_db is None or champ2_db is None:
             # When data in db is not the same with data passed by user. 
@@ -55,7 +70,7 @@ def game(request):
 
             return JsonResponse({'finish': "Error"}, status = 400)
 
-        # Check if answer is correct
+        # Check if the answer is correct
         if float(champ1_db.win_rate) < float(champ2_db.win_rate):
             if str(value) == 'higher':
                 correct = True
@@ -70,8 +85,7 @@ def game(request):
             correct = True
         
         if correct == True:
-            champion = Champ_winrate.objects.filter(source=str(src)).all()
-            random_champ = choice(champion)
+            random_champ = choice(all_champion)
 
             # Increase score update champs and save in database
             game.score += 1
@@ -96,8 +110,8 @@ def game(request):
         '''
         Resuming unfinished game
         '''
-        champs = [Champ_winrate.objects.filter(id=game.champ1).first(), \
-                  Champ_winrate.objects.filter(id=game.champ2).first()]
+        champs = [all_champion.filter(id=game.champ1).first(), \
+                  all_champion.filter(id=game.champ2).first()]
         score = game.score
 
     else:
@@ -113,11 +127,15 @@ def game(request):
                 game.is_finished = True
                 game.save()
 
-        # Update database if data older than 1 day or there is no data (all_champion is None)
-        all_champion = Champ_winrate.objects.filter(source=str(src)).all()
+        # Update database if the data older is than 1 day or there is no data (all_champion is None)
         if all_champion.first() is None or (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
             update_db(src)
             download_img()
+            
+            try:
+                cache.delete_many(['1', '2']) # Delete cache from two sources: '1' and '2'
+            except:
+                pass
 
         # Getting 2 random champions
         champs = [choice(all_champion), choice(all_champion)]

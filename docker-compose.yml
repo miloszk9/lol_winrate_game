@@ -32,6 +32,11 @@ services:
             - inner_net
             - gateway
 
+    memcached:
+        image: memcached
+        networks: 
+            - inner_net
+        
     nginx:
         image: nginx
         networks:
