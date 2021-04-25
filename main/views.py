@@ -18,6 +18,7 @@ def home(request):
 
 def game(request):
     src = int(request.GET.get('src', 1)) # Default option set to '1'
+    logger = logging.getLogger(__name__) # Enable loggin in docker
 
     # Save session key 
     if not request.session.session_key:
@@ -25,17 +26,62 @@ def game(request):
     session_key = request.session.session_key
 
     # Getting all champions from the database - if not cached
-    logger = logging.getLogger(__name__)
     if cache.get(str(src)) is not None:
         logger.info("Got cache")
         all_champion = cache.get(str(src))
     else:
-        logger.info("No cache")
+        try:
+            logger.info("No cache")
+            all_champion = Champ_winrate.objects.filter(source=str(src)).all()
+            cache.set(str(src), all_champion, 60 * 15)
+        except:
+            pass
+
+    """
+    Update database if there is no data (all_champion is None)
+    or if the data is older than 1 day (also need to check if all games are finished to prevent from bugs)
+    """
+    now_date = datetime.datetime.now()
+    if all_champion.first() is None:
+        logger.info("No champs")
+        update_db(src)
+        download_img()
+        
+        # Clearing the cache and get the fresh data 
+        try:
+            cache.delete(str(src)) # Delete cache if exists
+        except:
+            pass
         all_champion = Champ_winrate.objects.filter(source=str(src)).all()
         cache.set(str(src), all_champion, 60 * 15)
 
+    # Update database if the data older is than 1 day
+    elif (now_date - all_champion.first().date_update.replace(tzinfo=None)).days > 0:
+
+        # Update any unfinished games older than 1 day to finished (prevent bugs which can exist with new data from database)
+        games = Game_log.objects.filter(is_finished = False, source = src).all()
+        for game in games:
+            if (now_date - game.date.replace(tzinfo=None)).days > 0:
+                game.is_finished = True
+                game.save()
+
+        if Game_log.objects.filter(is_finished = False, source = src).first() is None:
+            logger.info("Champs update")
+            update_db(src)
+            download_img()
+            
+            # Clearing the cache and get the fresh data 
+            try:
+                cache.delete(str(src)) # Delete cache from the source
+            except:
+                pass
+            all_champion = Champ_winrate.objects.filter(source=str(src)).all()
+            cache.set(str(src), all_champion, 60 * 15)
+    else:
+        logger.info("no update")
+
     '''
-    Ajax when its second or later turns (not the first one)
+    Ajax are sent if its second or later turn (any apart from the first one)
     '''
     if request.is_ajax() and request.method == 'GET':
         src = request.GET.get('src', 1)
@@ -118,27 +164,11 @@ def game(request):
         '''
         Start of the game (the first turn)
         '''
-        
-        # Make as finished unfinished games older than 1 day (prevent bugs which can exist with new data from database)
-        now_date = datetime.datetime.now()
-        games = Game_log.objects.filter(is_finished = False).all()
-        for game in games:
-            if (now_date - game.date.replace(tzinfo=None)).days > 0:
-                game.is_finished = True
-                game.save()
-
-        # Update database if the data older is than 1 day or there is no data (all_champion is None)
-        if all_champion.first() is None or (now_date - all_champion[0].date_update.replace(tzinfo=None)).days > 0:
-            update_db(src)
-            download_img()
-            
-            try:
-                cache.delete_many(['1', '2']) # Delete cache from two sources: '1' and '2'
-            except:
-                pass
-
         # Getting 2 random champions
-        champs = [choice(all_champion), choice(all_champion)]
+        try:
+            champs = [choice(all_champion), choice(all_champion)]
+        except:
+            redirect('game')
 
         game = Game_log(session_key_db = session_key, score = 0, source = src, \
                         champ1 = champs[0].id, champ2 = champs[1].id, is_finished = False)

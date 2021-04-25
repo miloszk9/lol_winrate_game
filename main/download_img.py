@@ -2,8 +2,6 @@ import requests
 import os.path
 from bs4 import BeautifulSoup as soup
 
-dirname = os.path.dirname(__file__)
-
 '''
 Function download_img()
 
@@ -12,6 +10,7 @@ Function downloads images of champs and saves them in ./static/img folder
 Checks every champion in database and download image if not already in ./static/img folder
 '''
 def download_img():
+    dirname = os.path.dirname(__file__)
     url = 'https://lol.gamepedia.com/File:Skin_Loading_Screen_Classic_'
 
     # Read champs list from file
@@ -31,4 +30,5 @@ def download_img():
         except:
             print(champ)
 
-download_img()
+if __name__ == '__main__':
+    download_img()
