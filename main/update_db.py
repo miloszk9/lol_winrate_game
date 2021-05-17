@@ -35,22 +35,23 @@ def update_db(data_source):
         # Delete data from db
         Champ_winrate.objects.filter(source=data_source).all().delete()
 
-        url = 'https://champion.gg/statistics/overview?queue=ranked-solo-duo&rank=platinum_plus&region=world'
+        url = 'https://champion.gg/tierlist'
         webpage = requests.get(url)
         webpage_preety = soup(webpage.content, 'html.parser')
-        champ_list = webpage_preety.find_all("div", {"class": "champion-row"})
+
+        champ_list = webpage_preety.find_all("div", {"class": "fYmnzJ"})
 
         for champ in champ_list:
             try:
                 data = champ.find_all("div")
-                champ_name = data[2].find_next("span").get_text()
-                champ_lane = data[1].find_next("svg").find_next("title").get_text()[5:]
-                champ_win = data[5].get_text()[:-1]
+                champ_name = data[3].get_text()
+                champ_lane = data[0].get_text()[5:]
+                champ_win = data[2].find_next("span").get_text()[:-1]
                 
                 champ = Champ_winrate(name= champ_name, role = champ_lane, win_rate = champ_win, source = 2)
                 champ.save()
             except:
-                pass
+                redirect('home')
 
     '''
     Select champion names from database and save to file

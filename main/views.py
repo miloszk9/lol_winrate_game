@@ -168,7 +168,7 @@ def game(request):
         try:
             champs = [choice(all_champion), choice(all_champion)]
         except:
-            redirect('game')
+            redirect('home')
 
         game = Game_log(session_key_db = session_key, score = 0, source = src, \
                         champ1 = champs[0].id, champ2 = champs[1].id, is_finished = False)
