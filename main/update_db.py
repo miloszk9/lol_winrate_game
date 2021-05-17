@@ -29,7 +29,7 @@ def update_db(data_source):
                 champ = Champ_winrate(name= champ_name, role = champ_lane, win_rate = champ_win, source = 1)
                 champ.save()
             except:
-                pass
+                return -1
 
     if data_source == 2:
         # Delete data from db
@@ -51,7 +51,7 @@ def update_db(data_source):
                 champ = Champ_winrate(name= champ_name, role = champ_lane, win_rate = champ_win, source = 2)
                 champ.save()
             except:
-                redirect('home')
+                return -1
 
     '''
     Select champion names from database and save to file
@@ -64,3 +64,5 @@ def update_db(data_source):
     with open(os.path.join(dirname, 'champ_list.txt'), 'w') as file:
         for champ in champs:
             file.write(champ+'\n')
+
+    return 0
