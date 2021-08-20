@@ -21,7 +21,7 @@ services:
             - inner_net
             - gateway
         ports:
-            - 80:80
+            - 8080:80
 
     memcached:
         image: memcached

@@ -68,9 +68,7 @@ def game(request):
         if Game_log.objects.filter(is_finished = False, source = src).first() is None:
             logger.info("Champs update")
             
-            if update_db(src) == -1:
-                redirect('home')
-
+            update_db(src)
             download_img()
             
             # Clearing the cache and get the fresh data 
