@@ -103,6 +103,10 @@ def game(request):
             # When data in db is not the same with data passed by user. 
             # Data could be inspected and modified by user.
             game = Game_log.objects.filter(session_key_db = session_key, is_finished = False).all().delete()
+            try:
+                cache.delete(str(src)) # Delete cache if exists
+            except:
+                pass
 
             return JsonResponse({'finish': "Error"}, status = 400)
 
@@ -114,6 +118,10 @@ def game(request):
             # When data in db is not the same with data passed by user. 
             # Data could be inspected and modified by user.
             game = Game_log.objects.filter(session_key_db = session_key, is_finished = False).all().delete()
+            try:
+                cache.delete(str(src)) # Delete cache if exists
+            except:
+                pass
 
             return JsonResponse({'finish': "Error"}, status = 400)
 

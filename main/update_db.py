@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as soup
 from .models import Champ_winrate
 
 
-def update_db(data_source):
+def update_db(data_source = 1):
     ''' 
     Update winrates of the champions in database
 
@@ -66,3 +66,6 @@ def update_db(data_source):
     with open(os.path.join(dirname, 'champ_list.txt'), 'w') as file:
         for champ in champs:
             file.write(champ+'\n')
+
+if __name__ == '__main__':
+    update_db()
