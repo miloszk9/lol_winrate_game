@@ -9,8 +9,7 @@ A similar game to “Higher lower game” but you have to decide which of two ra
 ## Installation
 ```sh
 $ docker-compose up -d --build
-$ docker exec lol_winrate_game_lol_winrate_django_1 python manage.py migrate
-$ docker exec lol_winrate_game_lol_winrate_django_1 python manage.py update_db
+$ docker exec lol_winrate_game_lol_winrate_django_1 bash -c "python manage.py migrate; python manage.py update_db"
 ```
 
 ### Used frameworks / tools

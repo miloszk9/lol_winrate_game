@@ -2,14 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
-from requests.api import get
 from .models import Champ_winrate, Game_log
 from random import choice
-import datetime
 import logging
-
-from .update_db import update_db
-from .download_img import download_img
 
 @cache_page(60 * 15)
 def home(request):
@@ -17,7 +12,8 @@ def home(request):
     return render(request, 'main/home.html', data)
 
 def game(request):
-    src = int(request.GET.get('src', 1)) # Default option set to '1'
+    #src = int(request.GET.get('src', 1)) # Default option set to '1'
+    src = 1 # Currently only 1 source is avaiable 
     logger = logging.getLogger(__name__) # Enable loggin in docker
 
     # Save session key 
@@ -36,50 +32,6 @@ def game(request):
             cache.set(str(src), all_champion, 60 * 15)
         except:
             pass
-
-    """
-    Update database if there is no data (all_champion is None)
-    or if the data is older than 1 day (also need to check if all games are finished to prevent from bugs)
-    """
-    now_date = datetime.datetime.now()
-    if all_champion.first() is None:
-        logger.info("No champs")
-        update_db(src)
-        download_img()
-        
-        # Clearing the cache and get the fresh data 
-        try:
-            cache.delete(str(src)) # Delete cache if exists
-        except:
-            pass
-        all_champion = Champ_winrate.objects.filter(source=str(src)).all()
-        cache.set(str(src), all_champion, 60 * 15)
-
-    # Update database if the data older is than 1 day
-    elif (now_date - all_champion.first().date_update.replace(tzinfo=None)).days > 0:
-
-        # Update any unfinished games older than 1 day to finished (prevent bugs which can exist with new data from database)
-        games = Game_log.objects.filter(is_finished = False, source = src).all()
-        for game in games:
-            if (now_date - game.date.replace(tzinfo=None)).days > 0:
-                game.is_finished = True
-                game.save()
-
-        if Game_log.objects.filter(is_finished = False, source = src).first() is None:
-            logger.info("Champs update")
-            
-            update_db(src)
-            download_img()
-            
-            # Clearing the cache and get the fresh data 
-            try:
-                cache.delete(str(src)) # Delete cache from the source
-            except:
-                pass
-            all_champion = Champ_winrate.objects.filter(source=str(src)).all()
-            cache.set(str(src), all_champion, 60 * 15)
-    else:
-        logger.info("no update")
 
     '''
     Ajax are sent if its second or later turn (any apart from the first one)
