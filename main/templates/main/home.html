@@ -11,6 +11,7 @@
 </nav>
 
 <main class="container">
+    <h2 class="mt-4 d-flex justify-content-center">Last winrate update: {{ update_date }}</h2>
     <h2 class="mt-4 d-flex justify-content-center">Pick data source:</h2>
     <div class="mt-1 d-flex justify-content-center">
         <form action="/game">
@@ -34,9 +35,4 @@
     </div>
 </main>
 
-<footer class="page-footer font-small fixed-bottom bg-dark text-light">
-    <div class="footer-copyright text-center py-2">
-        © 2021 Copyright: Miłosz Kaszuba
-    </div>
-</footer>
 {% endblock content %}

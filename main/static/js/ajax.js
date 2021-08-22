@@ -27,14 +27,14 @@ $(document).ready(function(){
                     // Game is finished
                     $(".game_btn").remove(),
                     $("#champ2_role").parent().append('<h1>'+ response.champ2_win +' %</h1>')
-                    $("#div_score").append('<a href="/"><button class="btn btn-success">Play again!</button></a>')
+                    $("#div_score").append('<a href="/" class="row justify-content-center text-center mx-3"><button class="btn btn-success btn-lg">Play again!</button></a>')
                 }
             },
             error: function(){
                 // Game error
                 $("#game").remove(),
                 $("#score").text("An error has occured!"),
-                $("#div_score").append('<a href="/"><button class="btn btn-success">Play again!</button></a>')
+                $("#div_score").append('<a href="/" class="row justify-content-center text-center mx-3"><button class="btn btn-success btn-lg">Play again!</button></a>')
             }
         });
     });

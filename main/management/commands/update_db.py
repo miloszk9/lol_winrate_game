@@ -13,13 +13,19 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         src = 1 # currently only one source
         '''
-        Update any unfinished games older than 1 day to finished (prevent bugs which can exist with new data from database)
+        Finish any unfinished game older than 1 hour
         '''
         games = Game_log.objects.filter(is_finished = False, source = src).all()
         for game in games:
-            if (datetime.now() - game.date.replace(tzinfo=None)).days > 0:
+            if (datetime.now() - game.date.replace(tzinfo=None)).seconds > 3600:
                 game.is_finished = True
                 game.save()
+
+        '''
+        Check if there are any ongoing games
+        '''
+        if Game_log.objects.filter(is_finished = False, source = src).first() is not None:
+            return
 
         '''
         Clearing the cache if exists
@@ -59,8 +65,9 @@ class Command(BaseCommand):
         champs = [champ.name.replace(" ", "_") for champ in champs_db]
         champs = set(champs) # make 'champs' contain only unique values
 
-        dirname = os.path.dirname(__file__)
-        with open(os.path.join(dirname, 'champ_list.txt'), 'w') as file:
+        # dirname = os.path.dirname(__file__)
+        # with open(os.path.join(dirname, 'champ_list.txt'), 'w') as file:
+        with open('main/champ_list.txt', 'w') as file:
             for champ in champs:
                 file.write(champ+'\n')
 

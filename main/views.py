@@ -4,11 +4,14 @@ from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 from .models import Champ_winrate, Game_log
 from random import choice
+from datetime import datetime
 import logging
 
-@cache_page(60 * 15)
+@cache_page(60 * (59 - datetime.now().minute))
 def home(request):
-    data = {}
+    data = {
+        'update_date': Champ_winrate.objects.first().date_update.strftime("%H:%M, %B %d")
+    }
     return render(request, 'main/home.html', data)
 
 def game(request):
@@ -29,7 +32,10 @@ def game(request):
         try:
             logger.info("No cache")
             all_champion = Champ_winrate.objects.filter(source=str(src)).all()
-            cache.set(str(src), all_champion, 60 * 15)
+            current_min = datetime.now().minute
+            if current_min < 59:
+                # Expire cache 1 minute before database update
+                cache.set(str(src), all_champion, 60 * (59 - current_min))
         except:
             pass
 
@@ -129,6 +135,7 @@ def game(request):
         try:
             champs = [choice(all_champion), choice(all_champion)]
         except:
+            logger.info("Redirect to home")
             redirect('home')
 
         game = Game_log(session_key_db = session_key, score = 0, source = src, \
